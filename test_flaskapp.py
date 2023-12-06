@@ -1,6 +1,4 @@
 import unittest
-from flask import Flask
-from flask.testing import FlaskClient
 from flask.wrappers import Response
 
 from flask_app import app
