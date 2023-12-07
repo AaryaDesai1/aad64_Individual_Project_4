@@ -1,58 +1,28 @@
-from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for
-import os
-import openai
+from flask import Flask, render_template, request
+from transformers import pipeline, set_seed
 
-load_dotenv()
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Set up the text generation pipeline with GPT-2 model
+text_generator = pipeline("text-generation")
+set_seed(42)  # Optional: Set a seed for reproducibility
 
 
 @app.route("/")
-def home():
-    return render_template("traits.html", title="Home")
+def index():
+    return render_template("traits.html")
 
 
-def get_top_professions(traits, model="text-davinci-003"):
-    prompt = f"I am skilled at {traits}. What are the top professions for me?"
-
-    prompt_answer = f"""
-    Considering my skills: {traits}, which professions align best with my abilities?
-    ```{prompt}```
-    """
-
-    print(prompt_answer)
-
-    messages = [{"role": "user", "content": prompt_answer}]
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=0.5,
-        max_tokens=100,
-        stop=None,
-    )
-
-    return response.choices[0].message["content"]
-
-
-@app.route("/traits")
-def traits():
-    result = request.args.get("traits", "")
-    print(result)
-    return render_template("traits.html", result=result)
-
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    prompt = request.form.get("prompt")
-    result = get_top_professions(prompt)
-    return redirect(url_for("result", result=result))
-
-
-@app.route("/result")
-def result():
-    result = request.args.get("result", "")
-    return render_template("professions.html", result=result)
+@app.route("/generate", methods=["POST"])
+def generate():
+    if request.method == "POST":
+        prompt = request.form["prompt"]
+        # Generate text using GPT-2 based on the provided prompt
+        generated_text = text_generator(prompt, max_length=50, num_return_sequences=1)
+        generated_text = generated_text[0]["generated_text"]
+        return render_template(
+            "professions.html", prompt=prompt, generated_text=generated_text
+        )
 
 
 if __name__ == "__main__":

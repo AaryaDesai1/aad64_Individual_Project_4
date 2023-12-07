@@ -1,3 +1,7 @@
+venv:
+	python3 -m venv myenv
+		source myenv/bin/activate
+
 install:
 	pip install --upgrade pip &&\
 		pip install -r requirements.txt
@@ -17,6 +21,6 @@ container-lint:
 refactor: format lint
 
 deploy:
-	az webapp up --sku F1 --name TellMeMyProfession --location East US
+	az webapp up --sku F1 --name TellMeMyProfession --location eastus
 		
 all: install lint test format deploy
