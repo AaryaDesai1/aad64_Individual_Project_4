@@ -11,9 +11,9 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # Make port 5000 available to the world outside this container
-EXPOSE 5000
+EXPOSE 8080
 
 ENV NAME myenv
 
 # Run the Flask application
-CMD ["python", "flask_app.py", "--host=0.0.0.0", "--port=5000"]
+CMD ["python", "flask_app.py", "--host=0.0.0.0", "--port=8080"]
